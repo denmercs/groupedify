@@ -19,6 +19,8 @@ async function getUsers() {
 }
 
 async function findUser(username) {
-  let userExist = await db("users").where({ username });
+  let userExist = await db("users")
+    .where({ username })
+    .first();
   return userExist;
 }
