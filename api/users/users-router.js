@@ -11,6 +11,7 @@ router.post("/register", validateUsername, async (req, res) => {
     user.password = bcrypt.hashSync(user.password, 10);
     let newUser = await Users.addUser(user);
 
+    console.log(newUser);
     // once registered give the user token immediately
     const token = generateToken(newUser);
     res.status(201).json({
@@ -36,10 +37,7 @@ router.post("/login", async (req, res) => {
       bcrypt.compareSync(password, registeredUser.password)
     ) {
       const token = generateToken(registeredUser);
-      res.status(200).json({
-        message: `Welcome ${registeredUser.username}, this is your token:`,
-        token
-      });
+      res.status(200).json({ user: registeredUser, token });
     } else {
       res.status(500).json({
         message: "Server can't find the data. Please enter the right value"

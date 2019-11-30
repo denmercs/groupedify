@@ -21,6 +21,7 @@ async function getUsers() {
 async function findUser(username) {
   let userExist = await db("users")
     .where({ username })
+    .select("username", "password", "firstName", "lastName")
     .first();
   return userExist;
 }
