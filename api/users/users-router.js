@@ -9,9 +9,18 @@ router.post("/register", validateUsername, async (req, res) => {
   try {
     let user = req.body;
     user.password = bcrypt.hashSync(user.password, 10);
-    await Users.addUser(user);
-    res.status(200).json({ message: "User created" });
+    let newUser = await Users.addUser(user);
+
+    // once registered give the user token immediately
+    const token = generateToken(newUser);
+    res.status(201).json({
+      message: `Welcome ${newUser.username}, this is your token:`,
+      token
+    });
   } catch (err) {
+    res.status(500).json({
+      message: "Something is wrong, please try again!"
+    });
     console.log(err);
   }
 });
@@ -41,7 +50,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.get("/users", async (req, res) => {
+router.get("/users", restricted, async (req, res) => {
   try {
     let users = await Users.getUsers();
 
@@ -58,7 +67,7 @@ async function validateUsername(req, res, next) {
 
   let validateUser = await Users.findUser(username);
 
-  if (validateUser.length) {
+  if (validateUser) {
     res
       .status(409)
       .json({ message: "Username already exist. Please register another" });
